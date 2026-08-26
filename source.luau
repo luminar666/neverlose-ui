@@ -2409,6 +2409,7 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
     });
 
     local KeybindLib = {};
+    local currentConnection = nil;
 
     local Keybind = Instance.new("Frame")
     local UICorner = Instance.new("UICorner")
@@ -2511,12 +2512,25 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
         while not Selected do
             local Key = UserInputService.InputBegan:Wait();
 
-            if Key.KeyCode ~= Enum.KeyCode.Unknown and not IsBlacklist(Key.KeyCode) and not IsBlacklist(Key.KeyCode.Name) then
-                -- ЕСЛИ НАЖАЛИ ESC - СРАЗУ СБРАСЫВАЕМ
-                if Key.KeyCode == Enum.KeyCode.Escape then
-                    Selected = "None"
-                    break
+            if Key.KeyCode == Enum.KeyCode.Escape then
+                -- СБРАСЫВАЕМ БИНД
+                Config.Default = nil;
+                ValueLabel.Text = "None";
+                KeybindLib:Update();
+                Config.Callback(nil);
+                Logging.new("keyboard", "Bind reset to None", 3);
+                
+                -- ОТКЛЮЧАЕМ СТАРЫЙ СИГНАЛ
+                if currentConnection then
+                    currentConnection:Disconnect();
+                    currentConnection = nil;
                 end
+                
+                IsBinding = false;
+                return;
+            end
+
+            if Key.KeyCode ~= Enum.KeyCode.Unknown and not IsBlacklist(Key.KeyCode) and not IsBlacklist(Key.KeyCode.Name) then
                 Selected = Key.KeyCode;
             else
                 if Key.UserInputType == Enum.UserInputType.MouseButton1 and not IsBlacklist(Enum.UserInputType.MouseButton1) and not IsBlacklist("M1B") then
@@ -2529,15 +2543,6 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
         IsBinding = false;
 
-        if Selected == "None" then
-            Config.Default = nil
-            ValueLabel.Text = "None"
-            KeybindLib:Update()
-            Config.Callback(nil)
-            Logging.new("keyboard", "Bind reset to None", 3)
-            return
-        end
-
         local KeyName = typeof(Selected) == "string" and Selected or Selected.Name;
 
         Config.Default = KeyName;
@@ -2545,6 +2550,20 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
         ValueLabel.Text = NeverLose:KeyCodeToStr(KeyName);
 
         KeybindLib:Update();
+
+        -- ОТКЛЮЧАЕМ СТАРЫЙ СИГНАЛ, ЕСЛИ БЫЛ
+        if currentConnection then
+            currentConnection:Disconnect();
+            currentConnection = nil;
+        end
+
+        -- СОЗДАЁМ НОВЫЙ СИГНАЛ
+        currentConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.KeyCode == Enum.KeyCode[KeyName] then
+                Config.Callback(KeyName)
+            end
+        end)
 
         Config.Callback(KeyName)
     end)
@@ -2554,10 +2573,26 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
     end;
 
     function KeybindLib:SetValue(v)
+        -- ОТКЛЮЧАЕМ СТАРЫЙ СИГНАЛ
+        if currentConnection then
+            currentConnection:Disconnect();
+            currentConnection = nil;
+        end
+
         Config.Default = v;
         ValueLabel.Text = NeverLose:KeyCodeToStr(v);
         KeybindLib:Update();
         Config.Callback(Config.Default);
+
+        -- СОЗДАЁМ НОВЫЙ СИГНАЛ, ЕСЛИ ЕСТЬ КЛАВИША
+        if v then
+            currentConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+                if input.KeyCode == Enum.KeyCode[v] then
+                    Config.Callback(v)
+                end
+            end)
+        end
     end;
 
     if Config.Flag then
