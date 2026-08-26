@@ -2517,6 +2517,25 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
         Config.Callback(key)
     end
 
+    -- КНОПКА СБРОСА (МУСОРКА) РЯДОМ С БИНДОМ
+    local resetButton = Instance.new("TextButton")
+    resetButton.Parent = Keybind
+    resetButton.Size = UDim2.new(0, 16, 0, 16)
+    resetButton.Position = UDim2.new(1, 4, 0.5, -8)
+    resetButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    resetButton.Text = "🗑"
+    resetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    resetButton.Font = Enum.Font.GothamBold
+    resetButton.TextSize = 10
+    resetButton.BorderSizePixel = 0
+    resetButton.ZIndex = ZINdex + 15
+    Instance.new("UICorner", resetButton).CornerRadius = UDim.new(1, 0)
+
+    resetButton.MouseButton1Click:Connect(function()
+        SetBind(nil)
+        Logging.new("trash-can", "Bind reset to None", 3)
+    end)
+
     local IsBinding = false;
     NeverLose:CreateInput(Keybind , function()
         if IsBinding then return end;
@@ -2530,7 +2549,7 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
             if Key.KeyCode == Enum.KeyCode.Escape then
                 SetBind(nil);
-                Logging.new("keyboard", "Bind reset to None", 3);
+                Logging.new("keyboard", "Bind reset to None (ESC)", 3);
                 IsBinding = false;
                 return;
             end
