@@ -2401,157 +2401,206 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 	end;
 
 	function handle:AddKeybind(Config)
-		Config = NeverLose:ProcessParams(Config,{
-			Default = nil,
-			Blacklist = {},
-			Callback = EmptyFunction,
-			Flag = nil
-		});
+    Config = NeverLose:ProcessParams(Config,{
+        Default = nil,
+        Blacklist = {},
+        Callback = EmptyFunction,
+        Flag = nil
+    });
 
-		local KeybindLib = {};
+    local KeybindLib = {};
 
-		local Keybind = Instance.new("Frame")
-		local UICorner = Instance.new("UICorner")
-		local UIStroke = Instance.new("UIStroke")
-		local ValueLabel = Instance.new("TextLabel")
+    local Keybind = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local UIStroke = Instance.new("UIStroke")
+    local ValueLabel = Instance.new("TextLabel")
+    local ResetButton = Instance.new("TextButton") -- КНОПКА СБРОСА
 
-		Keybind.Name = NeverLose.RandomString();
-		Keybind.Parent = Handler
-		Keybind.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
-		Keybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
-		Keybind.BorderSizePixel = 0
-		Keybind.ClipsDescendants = true
-		Keybind.Size = UDim2.new(0, 45, 0, 18)
-		Keybind.ZIndex = ZINdex + 13
-		Keybind.LayoutOrder = -(#Handler:GetChildren() + 5);
+    Keybind.Name = NeverLose.RandomString();
+    Keybind.Parent = Handler
+    Keybind.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+    Keybind.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Keybind.BorderSizePixel = 0
+    Keybind.ClipsDescendants = true
+    Keybind.Size = UDim2.new(0, 45, 0, 18)
+    Keybind.ZIndex = ZINdex + 13
+    Keybind.LayoutOrder = -(#Handler:GetChildren() + 5);
 
-		UICorner.CornerRadius = UDim.new(0, 4)
-		UICorner.Parent = Keybind
+    UICorner.CornerRadius = UDim.new(0, 4)
+    UICorner.Parent = Keybind
 
-		UIStroke.Transparency = 0.650
-		UIStroke.Color = Color3.fromRGB(45, 48, 58)
-		UIStroke.Parent = Keybind
+    UIStroke.Transparency = 0.650
+    UIStroke.Color = Color3.fromRGB(45, 48, 58)
+    UIStroke.Parent = Keybind
 
-		ValueLabel.Name = NeverLose.RandomString();
-		ValueLabel.Parent = Keybind
-		ValueLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-		ValueLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		ValueLabel.BackgroundTransparency = 1.000
-		ValueLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-		ValueLabel.BorderSizePixel = 0
-		ValueLabel.ClipsDescendants = true
-		ValueLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-		ValueLabel.Size = UDim2.new(1, 0, 1, 0)
-		ValueLabel.ZIndex = ZINdex + 14
-		ValueLabel.Font = Enum.Font.GothamMedium
-		ValueLabel.Text = NeverLose:KeyCodeToStr(Config.Default or "None")
-		ValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		ValueLabel.TextSize = 10.000
-		ValueLabel.TextTransparency = 0.500
+    ValueLabel.Name = NeverLose.RandomString();
+    ValueLabel.Parent = Keybind
+    ValueLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    ValueLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ValueLabel.BackgroundTransparency = 1.000
+    ValueLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ValueLabel.BorderSizePixel = 0
+    ValueLabel.ClipsDescendants = true
+    ValueLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+    ValueLabel.Size = UDim2.new(1, 0, 1, 0)
+    ValueLabel.ZIndex = ZINdex + 14
+    ValueLabel.Font = Enum.Font.GothamMedium
+    ValueLabel.Text = NeverLose:KeyCodeToStr(Config.Default or "None")
+    ValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ValueLabel.TextSize = 10.000
+    ValueLabel.TextTransparency = 0.500
 
-		KeybindLib.SetRender = LPH_NO_VIRTUALIZE(function(value)
-			if value then
-				NeverLose.PlayAnimate(Keybind,SlowyTween, {
-					BackgroundTransparency = 0
-				})
+    -- КНОПКА СБРОСА (X)
+    ResetButton.Name = NeverLose.RandomString()
+    ResetButton.Parent = Keybind
+    ResetButton.AnchorPoint = Vector2.new(1, 0.5)
+    ResetButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    ResetButton.BackgroundTransparency = 0.2
+    ResetButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ResetButton.BorderSizePixel = 0
+    ResetButton.Position = UDim2.new(1, -2, 0.5, 0)
+    ResetButton.Size = UDim2.new(0, 12, 0, 12)
+    ResetButton.ZIndex = ZINdex + 15
+    ResetButton.Font = Enum.Font.GothamBold
+    ResetButton.Text = "x"
+    ResetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ResetButton.TextSize = 9
+    ResetButton.TextTransparency = 0
+    ResetButton.AutoButtonColor = false
 
-				NeverLose.PlayAnimate(UIStroke,SlowyTween, {
-					Transparency = 0.650
-				})
+    local ResetCorner = Instance.new("UICorner")
+    ResetCorner.CornerRadius = UDim.new(0, 3)
+    ResetCorner.Parent = ResetButton
 
-				NeverLose.PlayAnimate(ValueLabel,SlowyTween, {
-					TextTransparency = 0.500
-				})
-			else
-				NeverLose.PlayAnimate(Keybind,SlowyTween, {
-					BackgroundTransparency = 1
-				})
+    KeybindLib.SetRender = LPH_NO_VIRTUALIZE(function(value)
+        if value then
+            NeverLose.PlayAnimate(Keybind,SlowyTween, {
+                BackgroundTransparency = 0
+            })
 
-				NeverLose.PlayAnimate(UIStroke,SlowyTween, {
-					Transparency = 1
-				})
+            NeverLose.PlayAnimate(UIStroke,SlowyTween, {
+                Transparency = 0.650
+            })
 
-				NeverLose.PlayAnimate(ValueLabel,SlowyTween, {
-					TextTransparency = 1
-				})
-			end;
-		end);
+            NeverLose.PlayAnimate(ValueLabel,SlowyTween, {
+                TextTransparency = 0.500
+            })
 
-		function KeybindLib:Update()
-			local size = TextService:GetTextSize(ValueLabel.Text,ValueLabel.TextSize,ValueLabel.Font,Vector2.new(math.huge,math.huge));
+            NeverLose.PlayAnimate(ResetButton,SlowyTween, {
+                TextTransparency = 0
+            })
+        else
+            NeverLose.PlayAnimate(Keybind,SlowyTween, {
+                BackgroundTransparency = 1
+            })
 
-			NeverLose.PlayAnimate(Keybind , SlowyTween , {
-				Size = UDim2.new(0, size.X + 7, 0, 18)
-			})
-		end;
+            NeverLose.PlayAnimate(UIStroke,SlowyTween, {
+                Transparency = 1
+            })
 
-		local IsBlacklist = LPH_NO_VIRTUALIZE(function(v)
-			return Config.Blacklist and (Config.Blacklist[v] or table.find(Config.Blacklist,v))
-		end);
+            NeverLose.PlayAnimate(ValueLabel,SlowyTween, {
+                TextTransparency = 1
+            })
 
-		KeybindLib:Update()
+            NeverLose.PlayAnimate(ResetButton,SlowyTween, {
+                TextTransparency = 1
+            })
+        end;
+    end);
 
-		KeybindLib.SetRender(Signal:GetValue());
-		Signal:Connect(KeybindLib.SetRender);
+    function KeybindLib:Update()
+        local size = TextService:GetTextSize(ValueLabel.Text,ValueLabel.TextSize,ValueLabel.Font,Vector2.new(math.huge,math.huge));
 
-		local IsBinding = false;
-		NeverLose:CreateInput(Keybind , function()
-			if IsBinding then
-				return;
-			end;
+        NeverLose.PlayAnimate(Keybind , SlowyTween , {
+            Size = UDim2.new(0, size.X + 20, 0, 18) -- +20 вместо +7 для места под кнопку
+        })
+    end;
 
-			IsBinding = true;
+    local IsBlacklist = LPH_NO_VIRTUALIZE(function(v)
+        return Config.Blacklist and (Config.Blacklist[v] or table.find(Config.Blacklist,v))
+    end);
 
-			ValueLabel.Text = "...";
+    KeybindLib:Update()
 
-			KeybindLib:Update();
+    KeybindLib.SetRender(Signal:GetValue());
+    Signal:Connect(KeybindLib.SetRender);
 
-			local Selected = nil;
+    local IsBinding = false;
+    NeverLose:CreateInput(Keybind , function()
+        if IsBinding then
+            return;
+        end;
 
-			while not Selected do
-				local Key = UserInputService.InputBegan:Wait();
+        IsBinding = true;
 
-				if Key.KeyCode ~= Enum.KeyCode.Unknown and not IsBlacklist(Key.KeyCode) and not IsBlacklist(Key.KeyCode.Name) then
-					Selected = Key.KeyCode;
-				else
-					if Key.UserInputType == Enum.UserInputType.MouseButton1 and not IsBlacklist(Enum.UserInputType.MouseButton1) and not IsBlacklist("M1B") then
-						Selected = "M1B";
-					elseif Key.UserInputType == Enum.UserInputType.MouseButton2 and not IsBlacklist(Enum.UserInputType.MouseButton2) and not IsBlacklist("M2B") then
-						Selected = "M2B";
-					end;
-				end;
-			end;
+        ValueLabel.Text = "...";
 
-			IsBinding = false;
+        KeybindLib:Update();
 
-			local KeyName = typeof(Selected) == "string" and Selected or Selected.Name;
+        local Selected = nil;
 
-			Config.Default = KeyName;
+        while not Selected do
+            local Key = UserInputService.InputBegan:Wait();
 
-			ValueLabel.Text = NeverLose:KeyCodeToStr(KeyName);
+            if Key.KeyCode ~= Enum.KeyCode.Unknown and not IsBlacklist(Key.KeyCode) and not IsBlacklist(Key.KeyCode.Name) then
+                Selected = Key.KeyCode;
+            else
+                if Key.UserInputType == Enum.UserInputType.MouseButton1 and not IsBlacklist(Enum.UserInputType.MouseButton1) and not IsBlacklist("M1B") then
+                    Selected = "M1B";
+                elseif Key.UserInputType == Enum.UserInputType.MouseButton2 and not IsBlacklist(Enum.UserInputType.MouseButton2) and not IsBlacklist("M2B") then
+                    Selected = "M2B";
+                end;
+            end;
+        end;
 
-			KeybindLib:Update();
+        IsBinding = false;
 
-			Config.Callback(KeyName)
-		end)
+        local KeyName = typeof(Selected) == "string" and Selected or Selected.Name;
 
-		function KeybindLib:GetValue()
-			return Config.Default;
-		end;
+        Config.Default = KeyName;
 
-		function KeybindLib:SetValue(v)
-			Config.Default = v;
-			ValueLabel.Text = NeverLose:KeyCodeToStr(v);
-			KeybindLib:Update();
-			Config.Callback(Config.Default);
-		end;
+        ValueLabel.Text = NeverLose:KeyCodeToStr(KeyName);
 
-		if Config.Flag then
-			NeverLose.Flags[Config.Flag] = KeybindLib;
-		end;
+        KeybindLib:Update();
 
-		return KeybindLib;
-	end;
+        Config.Callback(KeyName)
+    end)
+
+    -- ФУНКЦИЯ СБРОСА
+    local function ResetBind()
+        Config.Default = "None"
+        ValueLabel.Text = "None"
+        KeybindLib:Update()
+        Config.Callback("None")
+    end
+
+    -- Кнопка сброса
+    ResetButton.MouseButton1Click:Connect(function()
+        ResetBind()
+    end)
+
+    -- Правый клик тоже сбрасывает (удобно)
+    ResetButton.MouseButton2Click:Connect(function()
+        ResetBind()
+    end)
+
+    function KeybindLib:GetValue()
+        return Config.Default;
+    end;
+
+    function KeybindLib:SetValue(v)
+        Config.Default = v;
+        ValueLabel.Text = NeverLose:KeyCodeToStr(v);
+        KeybindLib:Update();
+        Config.Callback(Config.Default);
+    end;
+
+    if Config.Flag then
+        NeverLose.Flags[Config.Flag] = KeybindLib;
+    end;
+
+    return KeybindLib;
+end;
 
 	function handle:AddTextInput(Config)
 		Config = NeverLose:ProcessParams(Config , {
